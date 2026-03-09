@@ -1,0 +1,35 @@
+{% macro render_output(entry) %}
+<section class="entry" data-suggestion-id="{{ entry.id if entry.id else '' }}">
+    {% if entry.created_at %}
+        <div class="meta">{{ entry.created_at.strftime('%B %d at %I:%M %p') }} EST</div>
+    {% endif %}
+    <pre class="io">░ INPUT
+time: {{ entry.time }}
+energy: {{ entry.energy }}
+mood: {{ entry.mood }}
+focus: {{ entry.focus }}</pre>
+
+    <ul class="tasks">
+        {% for task in entry.tasks %}
+            <li>
+                <label class="task-item">
+                    <input type="checkbox" 
+                           class="js-task task-checkbox" 
+                           data-task-id="{{ task.id if task.id else '' }}" 
+                           {% if task.done %}checked{% endif %}>
+                    <span class="task-text {% if task.done %}done{% endif %}">{{ task.text if task.text else task }}</span>
+                </label>
+            </li>
+        {% endfor %}
+    </ul>
+
+    {% if entry.quote and not entry.quiet %}
+        <p class="quote">
+            <em>{{ entry.quote.text }}</em>
+            <span class="by"> — {{ entry.quote.author }}</span>
+        </p>
+    {% endif %}
+
+
+</section>
+{% endmacro %}

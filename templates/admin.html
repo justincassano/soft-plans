@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Illustration Admin - Neurodivergent Activity Suggestions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Illustration Management</h1>
+            <p><a href="{{ url_for('index') }}">&larr; Back to Home</a></p>
+        </header>
+
+        <main>
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ 'error' if category == 'error' else 'success' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Quick Actions -->
+            <section class="section">
+                <h2>Quick Actions</h2>
+                <div class="action-buttons">
+                    <a href="{{ url_for('admin_preview') }}" class="button">🔍 Interactive Preview</a>
+                    <a href="{{ url_for('admin_new_illustration') }}" class="button">➕ Add New Illustration</a>
+                    <form method="post" action="{{ url_for('admin_migrate') }}" style="display: inline;">
+                        <button type="submit" class="button secondary">📦 Migrate from JSON</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Current illustrations -->
+            <section class="section">
+                <h2>Current Illustrations</h2>
+                
+                {% if illustrations %}
+                    <div class="illustration-grid">
+                        {% for illustration in illustrations %}
+                            <div class="illustration-card">
+                                <div class="illustration-info">
+                                    <h3>{{ illustration.title }}</h3>
+                                    <p><strong>File:</strong> {{ illustration.filename }}</p>
+                                    <p><strong>Position:</strong> {{ illustration.position }}</p>
+                                    <p><strong>Status:</strong> 
+                                        {% if illustration.is_active %}Active{% else %}Inactive{% endif %}
+                                        {% if illustration.is_default %} (Default){% endif %}
+                                    </p>
+                                    
+                                    {% if illustration.description %}
+                                        <p><strong>Description:</strong> {{ illustration.description }}</p>
+                                    {% endif %}
+                                    
+                                    <p><strong>Tags:</strong>
+                                        {% for tag in illustration.tags %}
+                                            <span class="tag">{{ tag.category }}:{{ tag.value }}</span>
+                                        {% endfor %}
+                                    </p>
+                                    
+                                    <div class="illustration-actions">
+                                        <a href="{{ url_for('admin_edit_illustration', id=illustration.id) }}" class="button">Edit</a>
+                                        <form method="post" action="{{ url_for('admin_delete_illustration', id=illustration.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure?')">
+                                            <button type="submit" class="button danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                                
+                                <!-- Show image if it exists -->
+                                <div class="illustration-preview">
+                                    <img src="{{ url_for('static', filename=illustration.filename) }}" 
+                                         alt="{{ illustration.title }}" 
+                                         onerror="this.style.display='none'"
+                                         class="preview-image">
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No illustrations found. <a href="{{ url_for('admin_migrate') }}" class="button">Migrate from JSON</a> or <a href="{{ url_for('admin_new_illustration') }}" class="button">Add New</a></p>
+                {% endif %}
+            </section>
+
+            <!-- Available tags -->
+            <section class="section">
+                <h2>Available Tags</h2>
+                {% if tags_by_category %}
+                    {% for category, tags in tags_by_category.items() %}
+                        <div class="tag-category">
+                            <h3>{{ category|title }}</h3>
+                            <div class="tag-list">
+                                {% for tag in tags %}
+                                    <span class="tag">{{ tag.value }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No tags found. Migrate from JSON or create illustrations to populate tags.</p>
+                {% endif %}
+            </section>
+        </main>
+    </div>
+
+    <style>
+        .section {
+            margin-bottom: 2em;
+            padding: 1em;
+            border: 1px solid var(--border);
+        }
+        
+        .illustration-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1em;
+            margin-top: 1em;
+        }
+        
+        .illustration-card {
+            border: 1px solid var(--border);
+            padding: 1em;
+            display: flex;
+            gap: 1em;
+        }
+        
+        .illustration-info {
+            flex: 1;
+        }
+        
+        .illustration-preview {
+            width: 80px;
+            flex-shrink: 0;
+        }
+        
+        .preview-image {
+            width: 100%;
+            height: auto;
+            border: 1px solid var(--border);
+        }
+        
+        .illustration-actions {
+            margin-top: 1em;
+        }
+        
+        .illustration-actions .button {
+            margin-right: 0.5em;
+        }
+        
+        .tag {
+            display: inline-block;
+            background: var(--bg-dark);
+            color: var(--text);
+            padding: 0.2em 0.5em;
+            margin: 0.1em;
+            border: 1px solid var(--border);
+            font-size: 0.8em;
+        }
+        
+        .tag-category {
+            margin-bottom: 1em;
+        }
+        
+        .tag-list {
+            margin-top: 0.5em;
+        }
+        
+        .flash-message {
+            padding: 1em;
+            margin-bottom: 1em;
+            border: 1px solid var(--border);
+        }
+        
+        .flash-message.success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .flash-message.error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .button.danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .button.danger:hover {
+            background: #c82333;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1em;
+            flex-wrap: wrap;
+        }
+        
+        .action-buttons .button {
+            margin: 0;
+        }
+    </style>
+</body>
+</html>

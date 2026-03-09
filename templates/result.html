@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% from "partials.html" import render_output %}
+
+{% block title %}Your suggestion - Soft Plans{% endblock %}
+
+{% block content %}
+    <h2>Your suggestion</h2>
+    
+    {{ render_output(entry) }}
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        // Task completion functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const entry = document.querySelector('.entry[data-suggestion-id]');
+            if (entry && entry.dataset.suggestionId) {
+                setupTaskCompletion(entry, entry.dataset.suggestionId);
+            }
+        });
+
+        function setupTaskCompletion(entry, suggestionId) {
+            const checkboxes = entry.querySelectorAll('.task-checkbox');
+            
+            // Load completion states
+            loadCompletionStates(entry, suggestionId);
+            
+            // Add event listeners
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const taskIndex = parseInt(this.dataset.taskIndex);
+                    const isCompleted = this.checked;
+                    
+                    toggleTaskStyle(this, isCompleted);
+                    saveTaskCompletion(suggestionId, taskIndex, isCompleted, this);
+                });
+            });
+        }
+
+        async function loadCompletionStates(entry, suggestionId) {
+            try {
+                const response = await fetch(`/suggestion/${suggestionId}/completion`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const completedTasks = data.completed_tasks || [];
+                    
+                    completedTasks.forEach(taskIndex => {
+                        const checkbox = entry.querySelector(`input[data-task-index="${taskIndex}"]`);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                            toggleTaskStyle(checkbox, true);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading completion states:', error);
+            }
+        }
+
+        async function saveTaskCompletion(suggestionId, taskIndex, isCompleted, checkbox) {
+            try {
+                await fetch(`/suggestion/${suggestionId}/toggle-task`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        task_index: taskIndex,
+                        completed: isCompleted
+                    })
+                });
+            } catch (error) {
+                console.error('Error saving task completion:', error);
+                // Revert checkbox on error
+                checkbox.checked = !isCompleted;
+                toggleTaskStyle(checkbox, !isCompleted);
+            }
+        }
+
+        function toggleTaskStyle(checkbox, isCompleted) {
+            const taskText = checkbox.nextElementSibling;
+            if (isCompleted) {
+                taskText.style.textDecoration = 'line-through';
+                taskText.style.opacity = '0.6';
+            } else {
+                taskText.style.textDecoration = 'none';
+                taskText.style.opacity = '1';
+            }
+        }
+    </script>
+{% endblock %}

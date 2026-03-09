@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Illustration Preview - Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Interactive Illustration Preview</h1>
+            <p><a href="{{ url_for('admin') }}">&larr; Back to Admin</a></p>
+        </header>
+
+        <main>
+            <div class="preview-layout">
+                <!-- Control Panel -->
+                <div class="control-panel">
+                    <h2>Test User Inputs</h2>
+                    <p>Adjust these settings to see which illustrations would appear for different user states.</p>
+                    
+                    <form id="previewForm" class="preview-form">
+                        <div class="form-group">
+                            <label for="time">Time Available</label>
+                            <select id="time" name="time">
+                                <option value="">Any</option>
+                                <option value="15">15 minutes</option>
+                                <option value="30">30 minutes</option>
+                                <option value="hour">1 hour</option>
+                                <option value="2+">2+ hours</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="energy">Energy Level</label>
+                            <select id="energy" name="energy">
+                                <option value="">Any</option>
+                                <option value="very low">Very Low</option>
+                                <option value="low">Low</option>
+                                <option value="okay">Okay</option>
+                                <option value="good">Good</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="emotion">Emotional State</label>
+                            <select id="emotion" name="emotion">
+                                <option value="">Any</option>
+                                <option value="anxious">Anxious</option>
+                                <option value="overwhelmed">Overwhelmed</option>
+                                <option value="sad">Sad</option>
+                                <option value="neutral">Neutral</option>
+                                <option value="hopeful">Hopeful</option>
+                                <option value="motivated">Motivated</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="focus">Desired Focus</label>
+                            <select id="focus" name="focus">
+                                <option value="">Any</option>
+                                <option value="self-care">Self-care</option>
+                                <option value="errands">Errands</option>
+                                <option value="creative work">Creative Work</option>
+                                <option value="social">Social</option>
+                                <option value="movement">Movement</option>
+                                <option value="rest">Rest</option>
+                                <option value="productive">Productive</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="button">Test Combination</button>
+                        <button type="button" id="clearBtn" class="button secondary">Clear All</button>
+                    </form>
+
+                    <!-- Current Selection Display -->
+                    <div id="currentSelection" class="current-selection">
+                        <h3>Current Selection</h3>
+                        <div id="selectionDetails">
+                            <p>Select inputs above to see which illustrations would be chosen</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Panel -->
+                <div class="preview-panel">
+                    <h2>Live Preview</h2>
+                    
+                    <!-- Header Illustration Preview -->
+                    <div class="preview-section">
+                        <h3>Header Illustration (Main Form)</h3>
+                        <div id="headerPreview" class="illustration-preview-container">
+                            <div class="no-preview">No illustration selected</div>
+                        </div>
+                        <div id="headerScores" class="score-breakdown"></div>
+                    </div>
+
+                    <!-- Result Header Illustration Preview -->
+                    <div class="preview-section">
+                        <h3>Result Header Illustration (Results Page)</h3>
+                        <div id="resultPreview" class="illustration-preview-container">
+                            <div class="no-preview">No illustration selected</div>
+                        </div>
+                        <div id="resultScores" class="score-breakdown"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Illustrations Reference -->
+            <div class="reference-section">
+                <h2>All Available Illustrations</h2>
+                <div class="illustration-grid">
+                    {% for illustration in illustrations %}
+                        <div class="illustration-reference-card" data-filename="{{ illustration.filename }}">
+                            <div class="illustration-info">
+                                <h4>{{ illustration.title }}</h4>
+                                <p><strong>File:</strong> {{ illustration.filename }}</p>
+                                <p><strong>Position:</strong> {{ illustration.position }}</p>
+                                {% if illustration.is_default %}
+                                    <p><strong>Default:</strong> Yes</p>
+                                {% endif %}
+                                <div class="tags">
+                                    {% for tag in illustration.tags %}
+                                        <span class="tag">{{ tag.category }}:{{ tag.value }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="illustration-preview">
+                                <img src="{{ url_for('static', filename=illustration.filename) }}" 
+                                     alt="{{ illustration.title }}" 
+                                     onerror="this.style.display='none'"
+                                     class="reference-image">
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .preview-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2em;
+            margin-bottom: 3em;
+        }
+        
+        .control-panel, .preview-panel {
+            border: 1px solid var(--border);
+            padding: 1.5em;
+        }
+        
+        .preview-form .form-group {
+            margin-bottom: 1em;
+        }
+        
+        .preview-form label {
+            display: block;
+            margin-bottom: 0.5em;
+            font-weight: bold;
+        }
+        
+        .preview-form select {
+            width: 100%;
+            padding: 0.5em;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+        }
+        
+        .current-selection {
+            margin-top: 2em;
+            padding: 1em;
+            border: 1px solid var(--border);
+            background: var(--bg-dark);
+        }
+        
+        .preview-section {
+            margin-bottom: 2em;
+            padding: 1em;
+            border: 1px solid var(--border);
+        }
+        
+        .illustration-preview-container {
+            text-align: center;
+            min-height: 200px;
+            border: 1px solid var(--border);
+            padding: 1em;
+            background: var(--bg-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 180px;
+            border: 1px solid var(--border);
+        }
+        
+        .no-preview {
+            color: var(--text);
+            opacity: 0.6;
+            font-style: italic;
+        }
+        
+        .score-breakdown {
+            margin-top: 1em;
+            font-size: 0.9em;
+        }
+        
+        .score-item {
+            padding: 0.5em;
+            margin: 0.25em 0;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .score-item.selected {
+            background: var(--accent);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .reference-section {
+            margin-top: 3em;
+            padding-top: 2em;
+            border-top: 2px solid var(--border);
+        }
+        
+        .illustration-reference-card {
+            border: 1px solid var(--border);
+            padding: 1em;
+            display: flex;
+            gap: 1em;
+        }
+        
+        .illustration-reference-card.highlighted {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        
+        .reference-image {
+            width: 80px;
+            height: auto;
+            border: 1px solid var(--border);
+        }
+        
+        .tag {
+            display: inline-block;
+            background: var(--bg-dark);
+            color: var(--text);
+            padding: 0.2em 0.5em;
+            margin: 0.1em;
+            border: 1px solid var(--border);
+            font-size: 0.8em;
+        }
+        
+        .button.secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        
+        .button.secondary:hover {
+            background: var(--bg-dark);
+        }
+        
+        @media (max-width: 768px) {
+            .preview-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <script>
+        const form = document.getElementById('previewForm');
+        const clearBtn = document.getElementById('clearBtn');
+        const currentSelection = document.getElementById('selectionDetails');
+        const headerPreview = document.getElementById('headerPreview');
+        const resultPreview = document.getElementById('resultPreview');
+        const headerScores = document.getElementById('headerScores');
+        const resultScores = document.getElementById('resultScores');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await testCombination();
+        });
+
+        clearBtn.addEventListener('click', () => {
+            form.reset();
+            clearPreviews();
+            clearHighlights();
+        });
+
+        async function testCombination() {
+            const formData = new FormData(form);
+            
+            try {
+                const response = await fetch('/admin/preview/test', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                updatePreviews(data);
+                updateScoreBreakdowns(data);
+                updateCurrentSelection(data);
+                highlightSelectedIllustrations(data.selected);
+                
+            } catch (error) {
+                console.error('Error testing combination:', error);
+                currentSelection.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+
+        function updatePreviews(data) {
+            // Update header preview
+            if (data.selected && data.selected.header) {
+                headerPreview.innerHTML = `<img src="/static/${data.selected.header}" alt="Header illustration" class="preview-image" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Ctext x=\'50\' y=\'50\' text-anchor=\'middle\' fill=\'%23666\'%3EImage not found%3C/text%3E%3C/svg%3E'">`;
+            } else {
+                headerPreview.innerHTML = '<div class="no-preview">No matching illustration</div>';
+            }
+
+            // Update result preview
+            if (data.selected && data.selected.result_header) {
+                resultPreview.innerHTML = `<img src="/static/${data.selected.result_header}" alt="Result illustration" class="preview-image" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Ctext x=\'50\' y=\'50\' text-anchor=\'middle\' fill=\'%23666\'%3EImage not found%3C/text%3E%3C/svg%3E'">`;
+            } else {
+                resultPreview.innerHTML = '<div class="no-preview">No matching illustration</div>';
+            }
+        }
+
+        function updateScoreBreakdowns(data) {
+            // Update header scores
+            headerScores.innerHTML = '';
+            if (data.scores.header) {
+                data.scores.header.forEach(item => {
+                    const scoreItem = document.createElement('div');
+                    scoreItem.className = `score-item ${item.selected ? 'selected' : ''}`;
+                    scoreItem.innerHTML = `
+                        <span>${item.illustration.title}</span>
+                        <span>Score: ${item.score}</span>
+                    `;
+                    headerScores.appendChild(scoreItem);
+                });
+            }
+
+            // Update result scores
+            resultScores.innerHTML = '';
+            if (data.scores.result_header) {
+                data.scores.result_header.forEach(item => {
+                    const scoreItem = document.createElement('div');
+                    scoreItem.className = `score-item ${item.selected ? 'selected' : ''}`;
+                    scoreItem.innerHTML = `
+                        <span>${item.illustration.title}</span>
+                        <span>Score: ${item.score}</span>
+                    `;
+                    resultScores.appendChild(scoreItem);
+                });
+            }
+        }
+
+        function updateCurrentSelection(data) {
+            const inputs = data.inputs;
+            const selected = data.selected;
+            
+            let html = '<h4>Input Combination:</h4>';
+            html += `<p><strong>Time:</strong> ${inputs.time || 'Any'}</p>`;
+            html += `<p><strong>Energy:</strong> ${inputs.energy || 'Any'}</p>`;
+            html += `<p><strong>Emotion:</strong> ${inputs.emotion || 'Any'}</p>`;
+            html += `<p><strong>Focus:</strong> ${inputs.focus || 'Any'}</p>`;
+            
+            html += '<h4>Selected Illustrations:</h4>';
+            html += `<p><strong>Header:</strong> ${selected.header || 'None'}</p>`;
+            html += `<p><strong>Result:</strong> ${selected.result_header || 'None'}</p>`;
+            
+            currentSelection.innerHTML = html;
+        }
+
+        function highlightSelectedIllustrations(selected) {
+            clearHighlights();
+            
+            // Highlight selected illustrations in reference section
+            Object.values(selected).forEach(filename => {
+                if (filename) {
+                    const card = document.querySelector(`[data-filename="${filename}"]`);
+                    if (card) {
+                        card.classList.add('highlighted');
+                    }
+                }
+            });
+        }
+
+        function clearHighlights() {
+            document.querySelectorAll('.illustration-reference-card.highlighted').forEach(card => {
+                card.classList.remove('highlighted');
+            });
+        }
+
+        function clearPreviews() {
+            headerPreview.innerHTML = '<div class="no-preview">No illustration selected</div>';
+            resultPreview.innerHTML = '<div class="no-preview">No illustration selected</div>';
+            headerScores.innerHTML = '';
+            resultScores.innerHTML = '';
+            currentSelection.innerHTML = '<p>Select inputs above to see which illustrations would be chosen</p>';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% from "partials.html" import render_output %}
+
+{% block title %}Recent suggestions - Soft Plans{% endblock %}
+
+{% block content %}
+    <h2>Recent suggestions</h2>
+
+    {% if entries %}
+        {% for entry in entries %}
+            {{ render_output(entry) }}
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <p>No activity suggestions yet.</p>
+            <p><a href="{{ url_for('index') }}">Get your first suggestion</a></p>
+        </div>
+    {% endif %}
+{% endblock %}

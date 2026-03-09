@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% from "partials.html" import render_output %}
+
+{% block title %}Activity suggestions - Soft Plans{% endblock %}
+
+{% block content %}
+    <form method="POST">
+        <div class="form-card">
+            <div class="form-card-header">Your current state</div>
+            <div class="form-card-body">
+                <div class="form-field">
+                    <label for="time_available">Time available:</label>
+                    <select name="time_available" id="time_available" required>
+                        <option value="">Choose...</option>
+                        <option value="5 minutes" {% if request.form.time_available == '5 minutes' %}selected{% endif %}>5 minutes</option>
+                        <option value="30 minutes" {% if request.form.time_available == '30 minutes' %}selected{% endif %}>30 minutes</option>
+                        <option value="1 hour" {% if request.form.time_available == '1 hour' %}selected{% endif %}>1 hour</option>
+                        <option value="2 hours" {% if request.form.time_available == '2 hours' %}selected{% endif %}>2 hours</option>
+                        <option value="Half day" {% if request.form.time_available == 'Half day' %}selected{% endif %}>Half day</option>
+                        <option value="Full day" {% if request.form.time_available == 'Full day' %}selected{% endif %}>Full day</option>
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label for="energy_level">Energy level:</label>
+                    <select name="energy_level" id="energy_level" required>
+                        <option value="">Choose...</option>
+                        <option value="Very low" {% if request.form.energy_level == 'Very low' %}selected{% endif %}>Very low</option>
+                        <option value="Low" {% if request.form.energy_level == 'Low' %}selected{% endif %}>Low</option>
+                        <option value="Okay" {% if request.form.energy_level == 'Okay' %}selected{% endif %}>Okay</option>
+                        <option value="Good" {% if request.form.energy_level == 'Good' %}selected{% endif %}>Good</option>
+                        <option value="High" {% if request.form.energy_level == 'High' %}selected{% endif %}>High</option>
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label for="emotional_state">Emotional state:</label>
+                    <select name="emotional_state" id="emotional_state" required>
+                        <option value="">Choose...</option>
+                        <option value="Sad" {% if request.form.emotional_state == 'Sad' %}selected{% endif %}>Sad</option>
+                        <option value="Anxious" {% if request.form.emotional_state == 'Anxious' %}selected{% endif %}>Anxious</option>
+                        <option value="Overwhelmed" {% if request.form.emotional_state == 'Overwhelmed' %}selected{% endif %}>Overwhelmed</option>
+                        <option value="Bored" {% if request.form.emotional_state == 'Bored' %}selected{% endif %}>Bored</option>
+                        <option value="Neutral" {% if request.form.emotional_state == 'Neutral' %}selected{% endif %}>Neutral</option>
+                        <option value="Content" {% if request.form.emotional_state == 'Content' %}selected{% endif %}>Content</option>
+                        <option value="Happy" {% if request.form.emotional_state == 'Happy' %}selected{% endif %}>Happy</option>
+                        <option value="Excited" {% if request.form.emotional_state == 'Excited' %}selected{% endif %}>Excited</option>
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label for="desired_focus">Desired focus:</label>
+                    <select name="desired_focus" id="desired_focus" required>
+                        <option value="">Choose...</option>
+                        <option value="Rest" {% if request.form.desired_focus == 'Rest' %}selected{% endif %}>Rest</option>
+                        <option value="Movement" {% if request.form.desired_focus == 'Movement' %}selected{% endif %}>Movement</option>
+                        <option value="Creativity" {% if request.form.desired_focus == 'Creativity' %}selected{% endif %}>Creativity</option>
+                        <option value="Connection" {% if request.form.desired_focus == 'Connection' %}selected{% endif %}>Connection</option>
+                        <option value="Maintenance" {% if request.form.desired_focus == 'Maintenance' %}selected{% endif %}>Maintenance</option>
+                        <option value="Exploration" {% if request.form.desired_focus == 'Exploration' %}selected{% endif %}>Exploration</option>
+                        <option value="Reflection" {% if request.form.desired_focus == 'Reflection' %}selected{% endif %}>Reflection</option>
+                    </select>
+                </div>
+
+                <button type="submit" id="generateBtn">Generate</button>
+            </div>
+        </div>
+    </form>
+
+    {% if entry %}
+        <div id="results-section">
+            {{ render_output(entry) }}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const generateBtn = document.getElementById('generateBtn');
+
+            if (form && generateBtn) {
+                form.addEventListener('submit', function() {
+                    generateBtn.textContent = 'Generating...';
+                    generateBtn.disabled = true;
+                    generateBtn.classList.add('is-loading');
+
+                    setTimeout(function() {
+                        const resultsSection = document.getElementById('results-section');
+                        if (resultsSection) {
+                            resultsSection.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        } else {
+                            form.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'end'
+                            });
+                        }
+                    }, 100);
+                });
+            }
+
+            const resultsSection = document.getElementById('results-section');
+            if (resultsSection) {
+                setTimeout(function() {
+                    resultsSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }, 300);
+            }
+        });
+    </script>
+{% endblock %}

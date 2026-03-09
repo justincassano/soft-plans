@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Soft Plans{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <main>
+        <header>
+            <h1><a href="{{ url_for('index') }}" class="logo-link">Soft Plans</a></h1>
+            <div class="hamburger-wrap">
+                <button class="hamburger-btn" aria-label="Menu" id="hamburger-btn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <nav class="nav-dropdown" id="nav-dropdown">
+                    <a href="{{ url_for('index') }}">Home</a>
+                    <a href="{{ url_for('history') }}">History</a>
+                </nav>
+            </div>
+        </header>
+        <hr class="header-rule">
+
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block scripts %}{% endblock %}
+
+    <script>
+    // Hamburger menu
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const navDropdown = document.getElementById('nav-dropdown');
+
+    hamburgerBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        navDropdown.classList.toggle('open');
+    });
+
+    document.addEventListener('click', function() {
+        navDropdown.classList.remove('open');
+    });
+
+    // Task toggle
+    document.addEventListener('change', async (e) => {
+        const el = e.target;
+        if (!el.classList.contains('js-task')) return;
+        const id = el.dataset.taskId;
+        const done = el.checked;
+
+        // optimistic UI
+        const taskText = el.parentNode.querySelector('.task-text');
+        if (taskText) taskText.classList.toggle('done', done);
+
+        try {
+            const res = await fetch(`/api/tasks/${id}/toggle`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({done})
+            });
+            if (!res.ok) throw new Error('toggle failed');
+        } catch (err) {
+            // revert on failure
+            el.checked = !done;
+            if (taskText) taskText.classList.toggle('done', el.checked);
+            console.warn(err);
+        }
+    });
+    </script>
+</body>
+</html>

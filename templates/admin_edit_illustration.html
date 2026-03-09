@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ 'Edit' if illustration else 'New' }} Illustration - Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>{{ 'Edit' if illustration else 'New' }} Illustration</h1>
+            <p><a href="{{ url_for('admin') }}">&larr; Back to Admin</a></p>
+        </header>
+
+        <main>
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ 'error' if category == 'error' else 'success' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="post" class="form">
+                <div class="form-group">
+                    <label for="filename">Filename (with extension)*</label>
+                    <input type="text" id="filename" name="filename" 
+                           value="{{ illustration.filename if illustration else '' }}" 
+                           placeholder="e.g. cosmic-calm.png" required>
+                    <p class="help">File must exist in the static/ folder</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="title">Title*</label>
+                    <input type="text" id="title" name="title" 
+                           value="{{ illustration.title if illustration else '' }}" 
+                           placeholder="e.g. Cosmic Calm" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="3" 
+                              placeholder="Optional description of the illustration">{{ illustration.description if illustration else '' }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="position">Position*</label>
+                    <select id="position" name="position" required>
+                        <option value="">Select position...</option>
+                        <option value="header" {{ 'selected' if illustration and illustration.position == 'header' else '' }}>
+                            Header (main form page)
+                        </option>
+                        <option value="result_header" {{ 'selected' if illustration and illustration.position == 'result_header' else '' }}>
+                            Result Header (results page)
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="is_default" value="1" 
+                               {{ 'checked' if illustration and illustration.is_default else '' }}>
+                        Default illustration (fallback when no tags match)
+                    </label>
+                </div>
+
+                {% if illustration %}
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="is_active" value="1" 
+                                   {{ 'checked' if illustration.is_active else '' }}>
+                            Active (enable this illustration)
+                        </label>
+                    </div>
+                {% endif %}
+
+                <!-- Tags section -->
+                <div class="form-group">
+                    <label>Tags</label>
+                    <p class="help">Select tags that match when this illustration should be shown</p>
+                    
+                    {% if tags_by_category %}
+                        {% for category, tags in tags_by_category.items() %}
+                            <div class="tag-category">
+                                <h4>{{ category|title }}</h4>
+                                <div class="checkbox-group">
+                                    {% for tag in tags %}
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="tags" value="{{ tag.id }}"
+                                                   {% if illustration and tag in illustration.tags %}checked{% endif %}>
+                                            {{ tag.value }}
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No tags available. Migrate from JSON first to create tags.</p>
+                    {% endif %}
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="button">{{ 'Update' if illustration else 'Create' }} Illustration</button>
+                    <a href="{{ url_for('admin') }}" class="button secondary">Cancel</a>
+                </div>
+            </form>
+
+            <!-- Preview section -->
+            {% if illustration %}
+                <section class="preview-section">
+                    <h2>Current Preview</h2>
+                    <div class="illustration-preview">
+                        <img src="{{ url_for('static', filename=illustration.filename) }}" 
+                             alt="{{ illustration.title }}" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                             class="preview-image">
+                        <p class="error-message" style="display: none;">Image file not found</p>
+                    </div>
+                </section>
+            {% endif %}
+        </main>
+    </div>
+
+    <style>
+        .form {
+            max-width: 600px;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5em;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5em;
+            font-weight: bold;
+        }
+        
+        .form-group input[type="text"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.5em;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+        }
+        
+        .help {
+            font-size: 0.9em;
+            color: var(--text);
+            margin-top: 0.25em;
+            opacity: 0.8;
+        }
+        
+        .checkbox-label {
+            display: flex !important;
+            align-items: center;
+            margin-bottom: 0.5em;
+        }
+        
+        .checkbox-label input[type="checkbox"] {
+            width: auto !important;
+            margin-right: 0.5em;
+        }
+        
+        .tag-category {
+            margin-bottom: 1em;
+            padding: 1em;
+            border: 1px solid var(--border);
+        }
+        
+        .tag-category h4 {
+            margin: 0 0 0.5em 0;
+        }
+        
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.5em;
+        }
+        
+        .form-actions {
+            margin-top: 2em;
+            padding-top: 1em;
+            border-top: 1px solid var(--border);
+        }
+        
+        .form-actions .button {
+            margin-right: 1em;
+        }
+        
+        .button.secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        
+        .button.secondary:hover {
+            background: var(--bg-dark);
+        }
+        
+        .preview-section {
+            margin-top: 2em;
+            padding-top: 1em;
+            border-top: 1px solid var(--border);
+        }
+        
+        .illustration-preview {
+            text-align: center;
+        }
+        
+        .preview-image {
+            max-width: 200px;
+            height: auto;
+            border: 1px solid var(--border);
+        }
+        
+        .flash-message {
+            padding: 1em;
+            margin-bottom: 1em;
+            border: 1px solid var(--border);
+        }
+        
+        .flash-message.success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .flash-message.error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</body>
+</html>

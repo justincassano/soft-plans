@@ -1,0 +1,324 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #FFFBED;
+    --fg: #000000;
+    --muted: #6D6D6C;
+    --meta: #0000EE;
+    --nav: #FCF3CC;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Figtree", system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    font-weight: 500;
+    letter-spacing: 0.64px;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+main {
+    max-width: 375px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+}
+
+h2 {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 16px;
+}
+
+.logo-link {
+    color: var(--fg);
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    tap-highlight-color: transparent;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+}
+
+.header-rule {
+    border: none;
+    border-top: 1.5px solid #000;
+    margin: 0 0 24px;
+}
+
+/* Hamburger */
+.hamburger-wrap {
+    position: relative;
+}
+
+.hamburger-btn {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    -webkit-tap-highlight-color: transparent;
+    tap-highlight-color: transparent;
+}
+
+.hamburger-btn span {
+    display: block;
+    width: 16px;
+    height: 0;
+    border-top: 1.5px solid #000;
+}
+
+.nav-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 141px;
+    background: var(--nav);
+    border: 1.5px solid #000;
+    z-index: 100;
+}
+
+.nav-dropdown.open {
+    display: block;
+}
+
+.nav-dropdown a {
+    display: block;
+    padding: 10px 14px;
+    color: var(--fg);
+    text-decoration: none;
+    font-size: 16px;
+    letter-spacing: 0.64px;
+}
+
+/* Form card */
+.form-card {
+    border: 1.5px solid #000;
+    margin: 24px 0;
+}
+
+.form-card-header {
+    height: 50px;
+    border-bottom: 1.5px solid #000;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+}
+
+.form-card-body {
+    padding: 14px;
+}
+
+.form-field {
+    margin: 12px 0;
+}
+
+.form-field label {
+    display: block;
+    margin: 0 0 6px;
+}
+
+label {
+    display: block;
+    margin: 8px 0;
+}
+
+select, input[type="radio"] {
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 500;
+    letter-spacing: 0.64px;
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-border-radius: 0;
+    border-radius: 0;
+    -webkit-tap-highlight-color: transparent;
+    tap-highlight-color: transparent;
+}
+
+select {
+    border: 1.5px solid #000;
+    padding: 4px 24px 4px 8px;
+    height: 32px;
+    width: 145px;
+    background: var(--bg);
+    color: var(--fg);
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 12px;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+select:focus {
+    outline: none;
+}
+
+input[type="checkbox"]:focus {
+    outline: none;
+}
+
+button {
+    border: 1.5px solid #000;
+    background: transparent;
+    color: var(--fg);
+    padding: 6px 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 500;
+    letter-spacing: 0.64px;
+    -webkit-tap-highlight-color: transparent;
+    tap-highlight-color: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+button.is-loading {
+    background: var(--nav);
+}
+
+.io {
+    white-space: pre-wrap;
+    border: 1.5px solid #000;
+    padding: 12px;
+    background: var(--bg);
+    margin: 0 0 8px;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 500;
+    letter-spacing: 0.64px;
+}
+
+.tasks {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0;
+}
+
+.tasks li {
+    margin: 6px 0;
+}
+
+.task-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    tap-highlight-color: transparent;
+}
+
+/* Custom checkbox */
+.task-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border: 1.5px solid var(--muted);
+    background: transparent;
+    flex-shrink: 0;
+    margin-top: 4px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    tap-highlight-color: transparent;
+}
+
+.task-checkbox:checked {
+    background: var(--meta);
+    border-color: var(--meta);
+}
+
+.task-text {
+    flex: 1;
+}
+
+.task-text.done {
+    text-decoration: line-through;
+    color: var(--muted);
+}
+
+.quote {
+    color: var(--muted);
+    font-size: 14px;
+    letter-spacing: 0.56px;
+    margin: 10px 0 0;
+}
+
+.entry {
+    border-top: 1.5px solid #000;
+    padding-top: 24px;
+    margin-top: 32px;
+}
+
+.entry:first-child {
+    border-top: none;
+    margin-top: 0;
+}
+
+.meta {
+    color: var(--meta);
+    font-size: 14px;
+    letter-spacing: 0.56px;
+    margin-bottom: 16px;
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--meta);
+    margin: 48px 0;
+}
+
+#results-section {
+    scroll-margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+    html {
+        scroll-padding-top: 20px;
+    }
+
+    #results-section {
+        scroll-margin-top: 10px;
+    }
+
+    .entry {
+        margin-top: 40px;
+        padding-top: 32px;
+    }
+
+    .meta {
+        margin-bottom: 20px;
+    }
+}
+
+@media print {
+    .hamburger-btn, .nav-dropdown, button, .form-card {
+        display: none;
+    }
+}
